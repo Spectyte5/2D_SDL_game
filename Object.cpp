@@ -34,5 +34,6 @@ void Object::Update() {
 void Object::Render() {
 
 	//Copy a selected portion of the texture (Source rect) to the current rendering target (Destination rect)
+	//SDL_RenderCopy(renderer, texture, part of texture drawn, where you want to draw it on screen);
 	SDL_RenderCopy(Game::renderer, texture, &src_rect, &dest_rect);
 }

@@ -33,6 +33,8 @@ public:
 	bool running();
 	//static renderer to be used through all files
 	static SDL_Renderer* renderer;
+	//static event
+	static SDL_Event event;
 };
 
 #endif 

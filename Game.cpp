@@ -2,13 +2,19 @@
 #include <SDL.h>
 #include "Game.h"
 #include "Texture_manager.h"
-#include "Object.h"
 #include "Map.h"
+#include "ECS/Components.h"
+#include "vector_2D.h"
 
-//create game objects
-Object* player;
-Object* spider;
+//event appears
+SDL_Event Game::event;
+
+//Create a map objects
 Map* map;
+
+//create components manager
+Manager manager;
+auto& player(manager.addEntity());
 
 //one static renderer used instead of copies
 SDL_Renderer* Game::renderer = nullptr;
@@ -52,9 +58,12 @@ SDL_Renderer* Game::renderer = nullptr;
 			isRunning = true;
 
 			//Initialize Game object with Textures
-			player = new Object("assets/character3.png",0,0);
-			spider = new Object("assets/spider.png", 50,50);
 			map = new Map();
+
+			//Entity & Component system implementaion:
+			player.addComponent<TransformComponent>();
+			player.addComponent<SpriteComponent>("assets/max.png");
+			player.addComponent<Controller>();
 		}
 
 		// if Sth went wrong quit game
@@ -66,8 +75,6 @@ SDL_Renderer* Game::renderer = nullptr;
 
 	void Game::handle_events() {
 		
-		//event appears
-		SDL_Event event;
 		//find event
 		SDL_PollEvent(&event);
 		//check what type of event:
@@ -82,8 +89,8 @@ SDL_Renderer* Game::renderer = nullptr;
 	void Game::update() {
 	
 		//update position of the game objects
-		player->Update();
-		spider->Update();
+		manager.Refresh();
+		manager.Update();
 	}
 
 	void Game::render() {
@@ -91,9 +98,7 @@ SDL_Renderer* Game::renderer = nullptr;
 		SDL_RenderClear(renderer);
 		//Render a map:
 		map->drawMap();
-		//SDL_RenderCopy(renderer, texture, part of texture drawn, where you want to draw it on screen);
-		player->Render();
-		spider->Render();
+		manager.Draw();
 		//This where we would add stuff to render
 		SDL_RenderPresent(renderer);
 
