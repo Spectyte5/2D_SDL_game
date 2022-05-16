@@ -1,17 +1,8 @@
 #pragma once
 #include "Game.h"
+#include <string>;
 
 class Map {
-
-	//rectangles for displaying in the right place
-	SDL_Rect dest_r, source_r;
-	//textures for the map
-	SDL_Texture* grass;
-	SDL_Texture* dirt;
-	SDL_Texture* water;
-	SDL_Texture* rock;
-	//map array
-	int map[20][25];
 
 public: 
 
@@ -20,7 +11,6 @@ public:
 	~Map();
 
 	//Load map to renderer
-	void loadMap(int array_m [20][25]);
-	//display Map
-	void drawMap();
+	static void loadMap(std::string path, int sizeX, int sizeY);
+
 };

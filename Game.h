@@ -3,6 +3,11 @@
 #define GAME_H
 #include <SDL.h>
 #include <SDL_image.h>
+#include <vector>
+#include <iostream>
+
+  //declare class before the collider vector
+class  Collider_component;
 
 class Game {
 
@@ -35,6 +40,10 @@ public:
 	static SDL_Renderer* renderer;
 	//static event
 	static SDL_Event event;
+	//vector holding colliders
+	static std::vector <Collider_component*> colliders;
+	//add tile map
+	static void addTile(int ID, int x, int y);
 };
 
 #endif 

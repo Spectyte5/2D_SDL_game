@@ -30,6 +30,12 @@ public:
 	Vector2D& operator*=(const Vector2D& vect);
 	Vector2D& operator/=(const Vector2D& vect);
 
+	//multiply our vector by scale
+	Vector2D& operator*(const int &i);
+
+	//zero our vector
+	Vector2D& Zero();
+
 	//overload << opearator:
 	friend std::ostream& operator << (std::ostream& output, const Vector2D& vect);
 
