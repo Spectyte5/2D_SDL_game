@@ -36,7 +36,9 @@ public:
 	//default postion, custom scale constructor:
 	TransformComponent(int s) {
 
-		position.Zero();
+		//put player in the middle of the screen
+		position.x = 612;
+		position.y = 612;
 		scale = s;
 	}
 
@@ -50,11 +52,13 @@ public:
 		scale = s;
 	}
 
+	//initialize velocity to 0
 	void Init() override {
 
 		velocity.Zero();
 	}
 
+	//update character position
 	void Update() override {
 
 		position.x += velocity.x * speed;

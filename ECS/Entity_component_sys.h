@@ -14,6 +14,7 @@ Each component has it's own class, so templates and lambdas are required in orde
 #include <bitset>
 #include <array>
 
+//forward declare classes
 class Component;
 class Entity;
 class Manager;
@@ -21,18 +22,21 @@ class Manager;
 //Component ID is size_t;
 using ComponentID = std::size_t;
 
+//Group
+using Group = std::size_t;
+
 //inline function (quicker than standard one) used to be expanded wherever we use it, rather then calling it
-inline ComponentID getComponentTypeID() {
+inline ComponentID getNewComponentTypeID() {
 
 	//functions rememebers the lastID, because of the static, so first time it will be 1, next the ID's will just be incremented
-	static ComponentID lastID = 0;
+	static ComponentID lastID = 0u;
 	return lastID++;
 };
 
 // to allow us to have templetaized IDs, which means positions ID will be always 1, physics could always be 2 etc.
 template <typename T> inline ComponentID getComponentTypeID() noexcept {
 
-	static ComponentID typeID = getComponentTypeID();
+	static ComponentID typeID = getNewComponentTypeID();
 
 	return typeID;
 }
@@ -40,6 +44,12 @@ template <typename T> inline ComponentID getComponentTypeID() noexcept {
 
 //Max number of components entity is able to hold:
 constexpr std::size_t maxComponents = 32;
+//Max number of groups:
+constexpr std::size_t maxGroups = 32;
+
+//Bitset for groups:
+using GroupBitSet = std::bitset <maxGroups>;
+
 
 //ComponentBitSet allows us to check if entity has got a selection of components, by comparing its bitset to the signature of a entity.
 using ComponentBitSet = std::bitset <maxComponents>;
@@ -62,12 +72,35 @@ public:
 
 class Entity {
 
+	Manager& manager;
 	bool active = 1;
 	std::vector<std::unique_ptr<Component>> components;
 
 	ComponentArray componentArray;
 	ComponentBitSet componentBitSet;
+	GroupBitSet groupBitSet;
+
 public:
+
+	//Constructor, manager member is set to mManager
+	Entity(Manager& mManager) : manager(mManager) {
+
+	}
+
+	//Check if entity has a group
+	bool hasGroup(Group mGroup) {
+
+		return groupBitSet[mGroup];
+	}
+
+	//add to a group
+	void addGroup(Group mGroup);
+
+	//delete from a group
+	void delGroup(Group mGroup) {
+
+		groupBitSet[mGroup] = false;
+	}
 
 	void Update() {
 
@@ -132,8 +165,11 @@ public:
 };
 
 class Manager {
-
+	
+	//vector holding pointers to entites
 	std::vector<std::unique_ptr<Entity>> entities;
+	//array holding groupped entites
+	std::array<std::vector <Entity*>, maxGroups> grouppedEntites;
 
 public:
 
@@ -148,8 +184,18 @@ public:
 
 		for (auto& e : entities) e->Draw();
 	}
-	//remove entities not visible on screen
+	//remove entities not visible on screen 
 	void Refresh() {
+
+		//remove entities from groups
+		for (auto i(0u); i < maxGroups; i++) {
+
+			auto& v(grouppedEntites[i]);
+			v.erase(std::remove_if(std::begin(v), std::end(v), [i](Entity* mEntity) {
+
+				return !mEntity->isActive() || !mEntity->hasGroup(i);
+				}), std::end(v));
+		}
 
 		entities.erase(std::remove_if(std::begin(entities), std::end(entities), [](const std::unique_ptr<Entity>& mEntity) {
 
@@ -158,11 +204,23 @@ public:
 			}), std::end(entities));
 	}
 
+	//Add entity m to group m
+	void addtoGroup(Entity *mEntity, Group mGroup) {
+
+		grouppedEntites[mGroup].emplace_back(mEntity);
+	}
+
+	//get entities list
+	std::vector <Entity*>& getGroup(Group mGroup) {
+
+		return grouppedEntites[mGroup];
+	}
+
 	//add entity to the world through this menager class
 
 	Entity& addEntity() {
 
-		Entity* e=new Entity();
+		Entity* e=new Entity(*this);
 		std::unique_ptr<Entity> uPtr{ e };
 		entities.emplace_back(std::move(uPtr));
 		return *e;

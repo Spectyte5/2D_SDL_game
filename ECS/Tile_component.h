@@ -8,52 +8,49 @@
 class Tile_component : public Component {
 
 public:
-	TransformComponent* transform;
-	SpriteComponent* sprite;
-
-	SDL_Rect tileRect;
-	int tileID;
-	const char* path;
+	SDL_Texture* texture;
+	SDL_Rect srcRect, destRect;
+	//tile position in game:
+	Vector2D position;
 
 	Tile_component() = default;
-	Tile_component(int x, int y, int h, int w, int id) {
 
-		tileRect.x = x;
-		tileRect.y = y;
-		tileRect.w = w;
-		tileRect.h = h;
-		tileID = id;
+	~Tile_component() {
 
-		//path = texture, depending on id:
-		switch (tileID) {
-		case 0:
-			path = "assets/grass.png";
-			break;
-		case 1:
-			path = "assets/dirt.png";
-			break;
-		case 2:
-			path = "assets/water2.png";
-			break;
-		case 3:
-			path = "assets/road.png";
-			break;
-		case 4:
-			path = "assets/sand.png";
-			break;
-		default:
-			break;
-		}
+		//destroy texture when out of scope
+		SDL_DestroyTexture(texture);
 	}
 
-	void Init() override {
 
-		//add position and velocity component
-		entity->addComponent<TransformComponent>((float)tileRect.x, (float)tileRect.y, tileRect.w, tileRect.h, 1);
-		transform = &entity->getComponent<TransformComponent>();
-		//add display component
-		entity->addComponent<SpriteComponent>(path);
-		sprite = &entity->getComponent<SpriteComponent>();
+	Tile_component(int srcX, int srcY, int xpos, int ypos, const char * path) {
 
+		//load pixeledit tileset
+		texture = TextureManager::load_texture(path);
+		
+		//position and source values 
+		position.x = xpos;
+		position.y = ypos;
+
+		srcRect.x = srcX;
+		srcRect.y = srcY;
+		srcRect.w = srcRect.h = 32;
+
+		//increase tile size two times:
+		destRect.x = xpos;
+		destRect.y = ypos;
+		destRect.w = destRect.h = 64;
+	}
+
+	void Update() override {
+
+		//update tile position
+		destRect.x = position.x - Game::camera.x;
+		destRect.y = position.y - Game::camera.y;
+		
+	}
+
+	//draw tiles
+	void Draw() override {
+		TextureManager::Draw(texture, srcRect, destRect, SDL_FLIP_NONE);
 	}
 };
