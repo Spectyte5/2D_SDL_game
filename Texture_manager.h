@@ -6,5 +6,5 @@ class TextureManager {
 
 public:
 	static SDL_Texture* load_texture(const char* texturefile);
-	static void Draw(SDL_Texture* tex, SDL_Rect src_rect, SDL_Rect dest_rect);
+	static void Draw(SDL_Texture* tex, SDL_Rect src_rect, SDL_Rect dest_rect, SDL_RendererFlip sprite_flip);
 };

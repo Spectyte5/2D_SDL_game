@@ -17,7 +17,7 @@ bool Collistion::AABB(const Collider_component& colA, const Collider_component& 
 	// display what object hit what
 	if (AABB(colA.collider, colB.collider)) {
 
-		std::cout << colA.tag << " hit: " << colB.tag << std::endl;
+		//std::cout << colA.tag << " hit: " << colB.tag << std::endl;
 
 		//collistion = true
 		return true;

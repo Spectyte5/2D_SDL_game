@@ -16,11 +16,32 @@ Map* map;
 //create components manager
 Manager manager;
 
+//create camera, Rect(x,y,h,w)
+SDL_Rect Game::camera = { 0, 0, 1024, 1024};
+
+//static is the game running declared to false, used for quitting the game with esc button
+bool Game::isRunning = false;
+
 //create player
 auto& player(manager.addEntity());
 
-//create wall 
-auto& wall(manager.addEntity());
+//path for map
+const char* mapfile = "assets/maps/map_1.png";
+
+//create Group
+enum groupLabels : std::size_t {
+
+	groupMap,
+	groupPlayers,
+	groupColliders,
+	groupEnemies
+};
+
+//get the groups
+auto& tiles(manager.getGroup(groupMap));
+auto& players(manager.getGroup(groupPlayers));
+auto& colliders(manager.getGroup(groupColliders));
+auto& enemies(manager.getGroup(groupEnemies));
 
 //colliders vector
 std::vector <Collider_component*> Game::colliders;
@@ -47,8 +68,8 @@ SDL_Renderer* Game::renderer = nullptr;
 		if (SDL_Init(SDL_INIT_EVERYTHING)== 0) {
 			std::cout << "Systems initalized!" << std::endl;
 			
-			//Create a Centered Window size: 800x640 
-			window = SDL_CreateWindow("RAV2022", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 640, flags);
+			//Create a Centered Window size: 1024x1024 
+			window = SDL_CreateWindow("RAV2022", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1024, 1024, flags);
 
 			if (window) {
 				std::cout << "Window Created!" << std::endl;
@@ -70,18 +91,16 @@ SDL_Renderer* Game::renderer = nullptr;
 			map = new Map();
 
 			//load .map file
-			Map::loadMap("assets/maps/test.map",16,16);
+			Map::loadMap("assets/maps/map_1.map",32,32);
 
 			//Entity & Component system implementaion:
-			player.addComponent<TransformComponent>(2);
-			player.addComponent<SpriteComponent>("assets/max.png");
+			player.addComponent<TransformComponent>(3);
+			player.addComponent<SpriteComponent>("assets/rav_anim2.png", true);
 			player.addComponent<Collider_component>("player");
 			player.addComponent<Controller>();
 
-			//create a wall
-			wall.addComponent<TransformComponent>(300.0f, 300.0f, 300, 20, 1);
-			wall.addComponent<SpriteComponent>("assets/wall.png");
-			wall.addComponent<Collider_component>("wall");
+			//add player to group;
+			player.addGroup(groupPlayers);
 		}
 
 		// if Sth went wrong quit game
@@ -110,18 +129,58 @@ SDL_Renderer* Game::renderer = nullptr;
 		manager.Refresh();
 		manager.Update();
 
+
+		//keep player in the middle of the screen
+		camera.x = player.getComponent<TransformComponent>().position.x - 612;
+		camera.y = player.getComponent<TransformComponent>().position.y - 612;
+
+		//keep camera in bound
+		if (camera.x < 0) {
+		
+			camera.x = 0;
+		}
+		if (camera.y < 0) {
+
+			camera.y = 0;
+		}
+		if (camera.x > camera.w) {
+
+			camera.x = camera.w;
+		}
+		if (camera.y > camera.h) {
+
+			camera.y = camera.h;
+		}
+
 		//check collisitions
 		for (auto c : colliders) {
 
 			Collistion::AABB(player.getComponent<Collider_component>(), *c);
 		}
+
 	}
 
 	void Game::render() {
 	
 		SDL_RenderClear(renderer);
+		
+		//draw onjects in groups:
+		for (auto& t : tiles) {
+			t->Draw();
+		}
+		
+		for (auto& p : players) {
+			p->Draw();
+		}
 
-		manager.Draw();
+		for (auto& e :	enemies) {
+			e->Draw();
+		}
+
+		for (auto& c : colliders) {
+			c->Draw();
+		}
+
 		//This where we would add stuff to render
 		SDL_RenderPresent(renderer);
 
@@ -136,10 +195,12 @@ SDL_Renderer* Game::renderer = nullptr;
 	}
 
 	//add tiles
-	void Game::addTile(int ID, int x, int y) {
+	void Game::addTile(int Srcx, int Srcy, int xpos, int ypos) {
 
 		auto& mtile(manager.addEntity());
-		mtile.addComponent<Tile_component>(x,y, 32, 32, ID);
+		mtile.addComponent<Tile_component>(Srcx, Srcy, xpos, ypos, mapfile);
+		//add tiles to group
+		mtile.addGroup(groupMap);
 	}
 
 	//get running value of true or false

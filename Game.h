@@ -13,8 +13,6 @@ class Game {
 
 	//game seconds counter for now used to moving character, will be improved later.
 	int cnt=0;
-	//while loop parameter for game on or off 
-	bool isRunning;
 	//Window pointer
 	SDL_Window* window;
 
@@ -22,6 +20,11 @@ public:
 	//constructor and destructor
 	Game();
 	~Game();
+
+	//while loop parameter for game on or off 
+	static bool isRunning;
+	//Camera rectangle (what is visible on screen)
+	static SDL_Rect camera;
 
 	//SDL and objects initalization
 	void init(const char* title, int xpos, int ypos, int height, int width, bool fullscreen);
@@ -43,7 +46,7 @@ public:
 	//vector holding colliders
 	static std::vector <Collider_component*> colliders;
 	//add tile map
-	static void addTile(int ID, int x, int y);
+	static void addTile(int Srcx, int Srcy, int xpos, int ypos);
 };
 
 #endif 

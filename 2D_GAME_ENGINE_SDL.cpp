@@ -12,7 +12,7 @@ int main(int argc, char* argv[]) { //these paramaters are neccessary co that SDL
 	int frameTime;                 //time between frames
 
 	game = new Game();
-	game->init("Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 640, false);
+	game->init("Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1024, 1024, false);
 
 	while (game->running()) {
 		//handle user input 
