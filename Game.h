@@ -6,7 +6,7 @@
 #include <vector>
 #include <iostream>
 
-  //declare class before the collider vector
+  //forward declare classes
 class  Collider_component;
 
 class Game {
@@ -43,10 +43,16 @@ public:
 	static SDL_Renderer* renderer;
 	//static event
 	static SDL_Event event;
-	//vector holding colliders
-	static std::vector <Collider_component*> colliders;
-	//add tile map
-	static void addTile(int Srcx, int Srcy, int xpos, int ypos);
+
+
+	//Different Groups
+	enum groupLabels : std::size_t {
+
+		groupMap,
+		groupPlayers,
+		groupColliders,
+		groupEnemies
+	};
 };
 
 #endif 

@@ -15,16 +15,16 @@ bool Collistion::AABB(const SDL_Rect& rectA, const SDL_Rect& rectB) {
 bool Collistion::AABB(const Collider_component& colA, const Collider_component& colB) {
 
 	// display what object hit what
-	if (AABB(colA.collider, colB.collider)) {
+	if (AABB(colA.collider, colB.collider)){
 
 		//std::cout << colA.tag << " hit: " << colB.tag << std::endl;
 
-		//collistion = true
+		// we have a collistion
 		return true;
 	}
 	else {
 
-		//collistion = false
+		//no collistion
 		return false;
 	}
 }

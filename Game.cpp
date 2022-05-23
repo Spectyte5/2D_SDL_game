@@ -1,11 +1,10 @@
-#include <iostream>
-#include <SDL.h>
 #include "Game.h"
 #include "Texture_manager.h"
 #include "Map.h"
 #include "ECS/Components.h"
 #include "vector_2D.h"
 #include "Collisition.h"
+#include <sstream>
 
 //event appears
 SDL_Event Game::event;
@@ -13,7 +12,7 @@ SDL_Event Game::event;
 //Create a map objects
 Map* map;
 
-//create components manager
+//create components and assets managers
 Manager manager;
 
 //create camera, Rect(x,y,h,w)
@@ -24,27 +23,6 @@ bool Game::isRunning = false;
 
 //create player
 auto& player(manager.addEntity());
-
-//path for map
-const char* mapfile = "assets/maps/map_1.png";
-
-//create Group
-enum groupLabels : std::size_t {
-
-	groupMap,
-	groupPlayers,
-	groupColliders,
-	groupEnemies
-};
-
-//get the groups
-auto& tiles(manager.getGroup(groupMap));
-auto& players(manager.getGroup(groupPlayers));
-auto& colliders(manager.getGroup(groupColliders));
-auto& enemies(manager.getGroup(groupEnemies));
-
-//colliders vector
-std::vector <Collider_component*> Game::colliders;
 
 //one static renderer used instead of copies
 SDL_Renderer* Game::renderer = nullptr;
@@ -88,10 +66,10 @@ SDL_Renderer* Game::renderer = nullptr;
 			isRunning = true;
 
 			//Initialize Game object with Textures
-			map = new Map();
+			map = new Map("terrain", 2, 32);
 
 			//load .map file
-			Map::loadMap("assets/maps/map_1.map",32,32);
+			map->loadMap("assets/maps/map_1.map",32,32);
 
 			//Entity & Component system implementaion:
 			player.addComponent<TransformComponent>(3);
@@ -110,6 +88,11 @@ SDL_Renderer* Game::renderer = nullptr;
 
 	}
 
+	//get the groups
+	auto& tiles(manager.getGroup(Game::groupMap));
+	auto& players(manager.getGroup(Game::groupPlayers));
+	auto& colliders(manager.getGroup(Game::groupColliders));
+
 	void Game::handle_events() {
 		
 		//find event
@@ -125,10 +108,25 @@ SDL_Renderer* Game::renderer = nullptr;
 	}
 	void Game::update() {
 
+		//get player's collider component
+		SDL_Rect player_col = player.getComponent<Collider_component>().collider;
+		Vector2D player_pos = player.getComponent<TransformComponent>().position;
+
 		//update position of the game objects
 		manager.Refresh();
 		manager.Update();
 
+		//check collistions
+		for (auto c : colliders) {
+
+			SDL_Rect c_Col = c->getComponent<Collider_component>().collider;
+			
+			if (Collistion::AABB(c_Col, player_col)) {
+				
+				//move player to previously stored position
+				player.getComponent<TransformComponent>().position = player_pos;
+			}
+		}
 
 		//keep player in the middle of the screen
 		camera.x = player.getComponent<TransformComponent>().position.x - 612;
@@ -151,34 +149,27 @@ SDL_Renderer* Game::renderer = nullptr;
 
 			camera.y = camera.h;
 		}
-
-		//check collisitions
-		for (auto c : colliders) {
-
-			Collistion::AABB(player.getComponent<Collider_component>(), *c);
-		}
-
 	}
 
 	void Game::render() {
 	
 		SDL_RenderClear(renderer);
 		
-		//draw onjects in groups:
+		//draw objects in groups:
 		for (auto& t : tiles) {
 			t->Draw();
 		}
 		
-		for (auto& p : players) {
-			p->Draw();
-		}
-
-		for (auto& e :	enemies) {
-			e->Draw();
-		}
-
+		/*
+		draw colliders as yellow rectangles, used for checking if they render:
+		
 		for (auto& c : colliders) {
 			c->Draw();
+		}
+		*/
+
+		for (auto& p : players) {
+			p->Draw();
 		}
 
 		//This where we would add stuff to render
@@ -192,15 +183,6 @@ SDL_Renderer* Game::renderer = nullptr;
 		SDL_DestroyRenderer(renderer);
 
 		std::cout << "Game Cleaned!" << std::endl;
-	}
-
-	//add tiles
-	void Game::addTile(int Srcx, int Srcy, int xpos, int ypos) {
-
-		auto& mtile(manager.addEntity());
-		mtile.addComponent<Tile_component>(Srcx, Srcy, xpos, ypos, mapfile);
-		//add tiles to group
-		mtile.addGroup(groupMap);
 	}
 
 	//get running value of true or false
