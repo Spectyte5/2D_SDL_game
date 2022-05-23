@@ -1,9 +1,10 @@
 #pragma once
 #include "Components.h"
-#include <SDL.h>
+#include "SDL.h"
 #include "../Texture_manager.h"
 #include "Animation.h"
 #include <map>
+#include "../Assetmanager.h"
 
 class SpriteComponent : public Component{
 
@@ -53,10 +54,7 @@ public:
 		setTex(path);
 	};
 
-	//destructor for textures:
 	~SpriteComponent() {
-		
-		SDL_DestroyTexture(texture);
 	}
 
 	void Init() override {
@@ -96,7 +94,7 @@ public:
 		TextureManager::Draw(texture, src_rect, dest_rect, sprite_flip);
 	}
 
-	void setTex(const char *path) {
+	void setTex(const char* path) {
 
 		texture = TextureManager::load_texture(path);
 	}

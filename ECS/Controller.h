@@ -1,5 +1,5 @@
 #pragma once
-#include "..\Game.h"
+#include "../Game.h"
 #include "Entity_component_sys.h"
 #include "Components.h"
 

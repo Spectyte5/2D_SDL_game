@@ -1,9 +1,10 @@
 #pragma once
 #include "Entity_component_sys.h"
 #include <SDL.h>
-#include "TransformComponent.h"
-#include "SpriteComponent.h"
-
+#include "../Assetmanager.h"
+#include "../vector_2D.h"
+#include "../Game.h"
+#include "../Texture_manager.h"
 
 class Tile_component : public Component {
 
@@ -22,7 +23,7 @@ public:
 	}
 
 
-	Tile_component(int srcX, int srcY, int xpos, int ypos, const char * path) {
+	Tile_component(int srcX, int srcY, int xpos, int ypos, const char* path, int t_size, int t_scale) {
 
 		//load pixeledit tileset
 		texture = TextureManager::load_texture(path);
@@ -33,12 +34,12 @@ public:
 
 		srcRect.x = srcX;
 		srcRect.y = srcY;
-		srcRect.w = srcRect.h = 32;
+		srcRect.w = srcRect.h = t_size;
 
-		//increase tile size two times:
+		//destination values to change size, change scale:
 		destRect.x = xpos;
 		destRect.y = ypos;
-		destRect.w = destRect.h = 64;
+		destRect.w = destRect.h = t_size * t_scale;
 	}
 
 	void Update() override {
