@@ -42,8 +42,14 @@ public:
 		animated = isAnimated;
 
 		//create animation objects
-		Animation idle = Animation(0, 6, 200);
-		Animation walk = Animation(1, 9, 75);
+		
+		//for RAV:
+		//Animation idle = Animation(0, 10, 150);
+		//Animation walk = Animation(1, 10, 75);
+		
+		//for MAX:
+		Animation idle = Animation(0, 7, 200);
+		Animation walk = Animation(1, 6, 100);
 
 		//add animations to vector
 		animations.emplace("idle", idle);
