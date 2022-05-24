@@ -72,8 +72,8 @@ SDL_Renderer* Game::renderer = nullptr;
 			map->loadMap("assets/maps/map_1.map",32,32);
 
 			//Entity & Component system implementaion:
-			player.addComponent<TransformComponent>(3);
-			player.addComponent<SpriteComponent>("assets/rav_anim2.png", true);
+			player.addComponent<TransformComponent>(4);
+			player.addComponent<SpriteComponent>("assets/max_anim.png", true);
 			player.addComponent<Collider_component>("player");
 			player.addComponent<Controller>();
 
