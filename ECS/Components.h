@@ -5,3 +5,5 @@
 #include "Controller.h"
 #include "Collider_component.h"
 #include "Tile_component.h"
+#include "Projectile_component.h"
+#include "UI_label.h"

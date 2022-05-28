@@ -1,7 +1,6 @@
 #pragma once
 #include "Entity_component_sys.h"
 #include <SDL.h>
-#include "../Assetmanager.h"
 #include "../vector_2D.h"
 #include "../Game.h"
 #include "../Texture_manager.h"
@@ -23,10 +22,10 @@ public:
 	}
 
 
-	Tile_component(int srcX, int srcY, int xpos, int ypos, const char* path, int t_size, int t_scale) {
+	Tile_component(int srcX, int srcY, int xpos, int ypos, std::string id, int t_size, int t_scale) {
 
 		//load pixeledit tileset
-		texture = TextureManager::load_texture(path);
+		texture = Game::assets->Get_Texture(id);
 		
 		//position and source values 
 		position.x = xpos;

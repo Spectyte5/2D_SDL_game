@@ -1,10 +1,10 @@
 #pragma once
+#include "../Asset_Manager.h"
 #include "Components.h"
 #include "SDL.h"
 #include "../Texture_manager.h"
 #include "Animation.h"
 #include <map>
-#include "../Assetmanager.h"
 
 class SpriteComponent : public Component{
 
@@ -31,21 +31,25 @@ public:
 	//new default constructor
 	SpriteComponent() = default;
 	//constructor taking a path for texture to load
-	SpriteComponent(const char* path){
+	SpriteComponent(std::string id){
 		
-		setTex(path);
+		setTex(id);
 	};
 
 	//animated object consturctor
-	SpriteComponent(const char* path, bool isAnimated) {
+	SpriteComponent(std::string id, bool isAnimated) {
 		
 		animated = isAnimated;
 
 		//create animation objects
 		
+		//for Davidof
+		//Animation idle = Animation(0, 14, 170);
+		//Animation walk = Animation(1, 6, 100);
+
 		//for RAV:
-		//Animation idle = Animation(0, 10, 150);
-		//Animation walk = Animation(1, 10, 75);
+		//Animation idle = Animation(0, 10, 170);
+		//Animation walk = Animation(1, 10, 80);
 		
 		//for MAX:
 		Animation idle = Animation(0, 7, 200);
@@ -57,7 +61,7 @@ public:
 
 		Play("idle");
 
-		setTex(path);
+		setTex(id);
 	};
 
 	~SpriteComponent() {
@@ -100,11 +104,14 @@ public:
 		TextureManager::Draw(texture, src_rect, dest_rect, sprite_flip);
 	}
 
-	void setTex(const char* path) {
 
-		texture = TextureManager::load_texture(path);
+		//set texture for an object
+	void setTex(std::string id) {
+
+		texture = Game::assets->Get_Texture(id);
 	}
 
+		//play the animations
 	void Play(const char* a_name) {
 
 		frames = animations[a_name].frames;
