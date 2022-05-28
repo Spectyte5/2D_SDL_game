@@ -7,7 +7,8 @@
 #include <iostream>
 
   //forward declare classes
-class  Collider_component;
+class Collider_component;
+class Asset_Manager;
 
 class Game {
 
@@ -43,15 +44,17 @@ public:
 	static SDL_Renderer* renderer;
 	//static event
 	static SDL_Event event;
-
-
+	//static assets
+	static Asset_Manager* assets;
+	
 	//Different Groups
 	enum groupLabels : std::size_t {
 
 		groupMap,
 		groupPlayers,
 		groupColliders,
-		groupEnemies
+		groupEnemies,
+		groupProjectiles
 	};
 };
 

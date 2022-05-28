@@ -5,6 +5,8 @@
 #include "vector_2D.h"
 #include "Collisition.h"
 #include <sstream>
+#include "Asset_Manager.h"
+#include <sstream>
 
 //event appears
 SDL_Event Game::event;
@@ -15,6 +17,9 @@ Map* map;
 //create components and assets managers
 Manager manager;
 
+//Create asset manager object
+Asset_Manager* Game::assets = new Asset_Manager(&manager);
+
 //create camera, Rect(x,y,h,w)
 SDL_Rect Game::camera = { 0, 0, 1024, 1024};
 
@@ -23,6 +28,8 @@ bool Game::isRunning = false;
 
 //create player
 auto& player(manager.addEntity());
+//create label
+auto& label(manager.addEntity());
 
 //one static renderer used instead of copies
 SDL_Renderer* Game::renderer = nullptr;
@@ -34,7 +41,7 @@ SDL_Renderer* Game::renderer = nullptr;
 
 	//initialze SDL and objects
 	void Game::init(const char *title, int xpos, int ypos, int height, int width, bool fullscreen) {
-		
+
 		//flags are additional information ex. FULL SCREEN:
 		int flags = 0;
 
@@ -65,6 +72,16 @@ SDL_Renderer* Game::renderer = nullptr;
 			//Game set to started
 			isRunning = true;
 
+			if (TTF_Init() == -1) {
+				std::cout << "TTF_Init failed..." << std::endl;
+			}
+
+			//Use asset manager class to add textures
+			assets->Add_Texture("terrain", "assets/maps/map_1.png");
+			assets->Add_Texture("player", "assets/max_anim.png");
+			assets->Add_Texture("projectile", "assets/proj_1.png");
+			assets->Add_Font("arial", "assets/arial.ttf", 16);
+
 			//Initialize Game object with Textures
 			map = new Map("terrain", 2, 32);
 
@@ -73,12 +90,25 @@ SDL_Renderer* Game::renderer = nullptr;
 
 			//Entity & Component system implementaion:
 			player.addComponent<TransformComponent>(4);
-			player.addComponent<SpriteComponent>("assets/max_anim.png", true);
+			player.addComponent<SpriteComponent>("player", true);
 			player.addComponent<Collider_component>("player");
 			player.addComponent<Controller>();
 
+			//create color for the font
+			SDL_Colour white = { 255,255,255,255 };
+			//add label component
+			label.addComponent<UIlabel>(10,10, "", "arial", white);
+
 			//add player to group;
 			player.addGroup(groupPlayers);
+
+			//create projectiles
+			assets->Create_Projectile(Vector2D(300, 400), Vector2D(3, 0), 300, 3, "projectile");
+			assets->Create_Projectile(Vector2D(320, 300), Vector2D(3, 0), 300, 3, "projectile");
+			assets->Create_Projectile(Vector2D(340, 200), Vector2D(3, 0), 300, 3, "projectile");
+			assets->Create_Projectile(Vector2D(330, 700), Vector2D(3, 0), 300, 3, "projectile");
+			assets->Create_Projectile(Vector2D(330, 100), Vector2D(3, 0), 300, 3, "projectile");
+
 		}
 
 		// if Sth went wrong quit game
@@ -92,6 +122,7 @@ SDL_Renderer* Game::renderer = nullptr;
 	auto& tiles(manager.getGroup(Game::groupMap));
 	auto& players(manager.getGroup(Game::groupPlayers));
 	auto& colliders(manager.getGroup(Game::groupColliders));
+	auto& projectiles(manager.getGroup(Game::groupProjectiles));
 
 	void Game::handle_events() {
 		
@@ -112,6 +143,13 @@ SDL_Renderer* Game::renderer = nullptr;
 		SDL_Rect player_col = player.getComponent<Collider_component>().collider;
 		Vector2D player_pos = player.getComponent<TransformComponent>().position;
 
+		//string steam allows us to update text every frame
+		std::stringstream ss;
+		//input what you want to display
+		ss << "Playerpos: " << player_pos;
+		//update text to display
+		label.getComponent<UIlabel>().Set_labelText(ss.str(), "arial");
+
 		//update position of the game objects
 		manager.Refresh();
 		manager.Update();
@@ -125,6 +163,16 @@ SDL_Renderer* Game::renderer = nullptr;
 				
 				//move player to previously stored position
 				player.getComponent<TransformComponent>().position = player_pos;
+			}
+		}
+
+		//check projectile collistions
+		for (auto& p : projectiles) {
+			
+			if (Collistion::AABB(player.getComponent<Collider_component>().collider, p->getComponent<Collider_component>().collider)) {
+
+				std::cout << "Hit the player" << std::endl;
+				p->Destroy();
 			}
 		}
 
@@ -171,6 +219,13 @@ SDL_Renderer* Game::renderer = nullptr;
 		for (auto& p : players) {
 			p->Draw();
 		}
+
+		for (auto& p : projectiles) {
+			p->Draw();
+		}
+
+		//draw text on screen
+		label.Draw();
 
 		//This where we would add stuff to render
 		SDL_RenderPresent(renderer);

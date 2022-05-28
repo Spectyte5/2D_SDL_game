@@ -83,7 +83,7 @@ void Map::loadMap(std::string path, int sizeX, int sizeY) {
 void Map::addTile(int Srcx, int Srcy, int xpos, int ypos) {
 
 	auto& mtile(manager.addEntity());
-	mtile.addComponent<Tile_component>(Srcx, Srcy, xpos, ypos, mapfile, tilesize, mapscale);
+	mtile.addComponent<Tile_component>(Srcx, Srcy, xpos, ypos, textureid, tilesize, mapscale);
 	//add tiles to group
 	mtile.addGroup(Game::groupMap);
 }
