@@ -11,7 +11,7 @@ public:
 	Vector2D velocity;
 
 	//character speed
-	int speed = 3;
+	int speed = 4;
 
 	//area for colitions
 	int height = 32;
@@ -61,7 +61,16 @@ public:
 	//update character position
 	void Update() override {
 
-		position.x += velocity.x * speed;
-		position.y += velocity.y * speed;
+		float x_change = velocity.x * speed;;
+		float y_change = velocity.y * speed;
+
+		//normalize velocity on diagonals
+		if (x_change && y_change) {
+			x_change /= sqrt(2);
+			y_change /= sqrt(2);
+		}
+
+		position.x += x_change;
+		position.y += y_change;
 	}
 };
